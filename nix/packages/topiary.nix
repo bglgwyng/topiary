@@ -133,6 +133,44 @@ let
     )
   ) { };
 
+  topiary-cli-portable = makeOverridable (
+    {
+      prefetchGrammars ? false,
+    }:
+    craneLib.buildPackage (
+      commonArgs
+      // {
+        inherit cargoArtifacts;
+        pname = "topiary";
+        cargoExtraArgs = "-p topiary-cli-portable --features portable";
+        cargoTestExtraArgs = "--no-default-features";
+
+        preConfigurePhases = optional prefetchGrammars "prepareTopiaryDefaultConfiguration";
+
+        prepareTopiaryDefaultConfiguration = optional prefetchGrammars (
+          "cp ${prefetchLanguagesNickelFile ../../topiary-config/languages.ncl} topiary-config/languages.ncl"
+        );
+
+        postInstall = ''
+          mkdir -p $out/share/queries
+          cp -r topiary-queries/queries/* $out/share/queries
+        '';
+
+        # Set TOPIARY_LANGUAGE_DIR to the Nix store
+        # for the build
+        TOPIARY_LANGUAGE_DIR = "${placeholder "out"}/share/queries";
+
+        # Set TOPIARY_LANGUAGE_DIR to the working directory
+        # in a development shell
+        shellHook = ''
+          export TOPIARY_LANGUAGE_DIR=$PWD/queries
+        '';
+
+        meta.mainProgram = "topiary";
+      }
+    )
+  ) { };
+
   topiary-queries = craneLib.buildPackage (
     commonArgs
     // {
@@ -308,6 +346,7 @@ in
     client-app
     topiary-core
     topiary-cli
+    topiary-cli-portable
     topiary-docker
     topiary-queries
     mdbook

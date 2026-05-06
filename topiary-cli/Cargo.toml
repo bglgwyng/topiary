@@ -22,6 +22,11 @@ license.workspace = true
 name = "topiary"
 path = "src/main.rs"
 
+[[bin]]
+name = "topiary-portable"
+path = "src/main.rs"
+required-features = ["portable"]
+
 [dependencies]
 # For now we just load the tree-sitter language parsers statically.
 # Eventually we will want to dynamically load them, like Helix does.
@@ -58,6 +63,7 @@ default = [
   "toml",
   "tree_sitter_query",
 ]
+portable = []
 
 # Included by default
 contributed = [
