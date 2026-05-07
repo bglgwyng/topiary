@@ -217,6 +217,26 @@ impl Configuration {
         Err(TopiaryConfigError::NoExtension(pb.clone()))
     }
 
+    /// Parse a `Configuration` from a JSON string.
+    ///
+    /// Useful when the configuration has been pre-evaluated (e.g. embedded into the binary
+    /// at build time) so the Nickel evaluator is not needed.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `TopiaryConfigError::Json` if the input is not valid JSON or does not
+    /// match the expected schema.
+    #[allow(clippy::result_large_err)]
+    pub fn from_json(s: &str) -> Self {
+        serde_json::from_str::<SerdeConfiguration>(s)
+            .expect(
+                "embedded configuration JSON failed to deserialize; \
+             this indicates a build-time misconfiguration of TOPIARY_EMBEDDED_CONFIG_PATH \
+             (the file does not match the expected Configuration schema)",
+            )
+            .into()
+    }
+
     #[allow(clippy::result_large_err)]
     fn parse_and_merge(sources: &[Source]) -> TopiaryConfigResult<(Self, NickelValue)> {
         let inputs = sources.iter().map(|s| s.clone().into());

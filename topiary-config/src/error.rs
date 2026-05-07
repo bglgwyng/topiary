@@ -16,6 +16,7 @@ pub enum TopiaryConfigError {
     TreeSitterFacade(topiary_tree_sitter_facade::LanguageError),
     Nickel(Box<nickel_lang_core::error::Error>),
     NickelDeserialization(nickel_lang_core::deserialize::RustDeserializationError),
+    Json(serde_json::Error),
     #[cfg(not(target_arch = "wasm32"))]
     Fetching(TopiaryConfigFetchingError),
 }
@@ -73,6 +74,7 @@ impl fmt::Display for TopiaryConfigError {
                 "Nickel error: {e:#?}\n\nDid you forget to add a \"priority\" annotation in your config file?"
             ),
             TopiaryConfigError::NickelDeserialization(e) => write!(f, "Nickel error: {e:#?}"),
+            TopiaryConfigError::Json(e) => write!(f, "JSON error: {e}"),
             #[cfg(not(target_arch = "wasm32"))]
             TopiaryConfigError::Fetching(e) => write!(f, "Error Fetching Language: {e}"),
         }
@@ -109,6 +111,12 @@ impl From<nickel_lang_core::deserialize::RustDeserializationError> for TopiaryCo
 impl From<nickel_lang_core::error::Error> for TopiaryConfigError {
     fn from(e: nickel_lang_core::error::Error) -> Self {
         Self::Nickel(e.into())
+    }
+}
+
+impl From<serde_json::Error> for TopiaryConfigError {
+    fn from(e: serde_json::Error) -> Self {
+        Self::Json(e)
     }
 }
 

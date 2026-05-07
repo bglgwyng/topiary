@@ -135,38 +135,20 @@ let
 
   topiary-cli-portable = makeOverridable (
     {
-      prefetchGrammars ? false,
+      config ? import ../lib/defaultEmbeddedConfig.nix { inherit pkgs; },
     }:
     craneLib.buildPackage (
       commonArgs
       // {
         inherit cargoArtifacts;
         pname = "topiary";
-        cargoExtraArgs = "-p topiary-cli-portable --features portable";
+        # cargoExtraArgs = "-p topiary-cli-portable --features portable";
+        cargoExtraArgs = "-p topiary-cli --bin topiary-portable --features portable";
         cargoTestExtraArgs = "--no-default-features";
 
-        preConfigurePhases = optional prefetchGrammars "prepareTopiaryDefaultConfiguration";
+        TOPIARY_EMBEDDED_CONFIG_PATH = pkgs.writeText "config.json" (builtins.toJSON config);
 
-        prepareTopiaryDefaultConfiguration = optional prefetchGrammars (
-          "cp ${prefetchLanguagesNickelFile ../../topiary-config/languages.ncl} topiary-config/languages.ncl"
-        );
-
-        postInstall = ''
-          mkdir -p $out/share/queries
-          cp -r topiary-queries/queries/* $out/share/queries
-        '';
-
-        # Set TOPIARY_LANGUAGE_DIR to the Nix store
-        # for the build
-        TOPIARY_LANGUAGE_DIR = "${placeholder "out"}/share/queries";
-
-        # Set TOPIARY_LANGUAGE_DIR to the working directory
-        # in a development shell
-        shellHook = ''
-          export TOPIARY_LANGUAGE_DIR=$PWD/queries
-        '';
-
-        meta.mainProgram = "topiary";
+        meta.mainProgram = "topiary-portable";
       }
     )
   ) { };

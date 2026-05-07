@@ -4351,6 +4351,7 @@ dependencies = [
  "nickel-lang-core",
  "rayon",
  "serde",
+ "serde_json",
  "tempfile",
  "topiary-queries",
  "topiary-tree-sitter-facade",
