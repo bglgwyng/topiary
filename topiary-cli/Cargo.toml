@@ -63,7 +63,7 @@ default = [
   "toml",
   "tree_sitter_query",
 ]
-portable = []
+portable = ["topiary-config/include_query"]
 
 # Included by default
 contributed = [

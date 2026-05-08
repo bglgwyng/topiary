@@ -47,6 +47,11 @@ pub struct LanguageConfiguration {
 
     /// The tree-sitter source of the language, contains all that is needed to pull and compile the tree-sitter grammar
     pub grammar: Grammar,
+
+    /// Path to the formatting query file for this language. Only present when
+    /// queries are supplied via configuration rather than looked up by name.
+    #[cfg(feature = "include_query")]
+    pub query: PathBuf,
 }
 
 #[derive(Debug, serde::Deserialize, PartialEq, serde::Serialize, Clone)]

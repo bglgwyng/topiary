@@ -34,6 +34,7 @@ in
           );
         };
       };
+      query = ./../../topiary-queries/queries/bash/formatting.scm;
     };
   };
 }

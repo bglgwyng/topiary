@@ -274,6 +274,9 @@ impl<'cfg, 'i> Inputs<'cfg> {
 
 #[allow(clippy::result_large_err)]
 fn to_query_from_language(language: &topiary_config::language::Language) -> CLIResult<QuerySource> {
+    #[cfg(feature = "portable")]
+    return Ok(language.config.query.clone().into());
+
     let query: QuerySource = match language.find_query_file() {
         Ok(p) => p.into(),
         // For some reason, Topiary could not find any
