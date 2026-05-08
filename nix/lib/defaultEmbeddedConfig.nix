@@ -2,42 +2,73 @@
 let
   inherit (pkgs) fetchgit;
 
-  # Build a tree-sitter parser shared library from a grammar source path.
-  # `src` may be a fetched store path or a subdirectory thereof
-  # (e.g. "${fetchgit {...}}/grammars/ocaml") for repos that ship multiple
-  # grammars.
-  #
+  tree-sitter-parser-src =
+    {
+      name,
+      src,
+      abi ? "15",
+      scanner ? null,
+    }:
+    pkgs.runCommand name
+      {
+        nativeBuildInputs = [
+          pkgs.nodejs
+          pkgs.tree-sitter
+        ];
+      }
+      ''
+        export HOME=$TMPDIR
+        mkdir -p $out/src
+        tree-sitter generate --abi ${abi} ${src}/grammar.js -o $out/src
+        ${pkgs.lib.optionalString (scanner != null) "cp -r ${scanner}/* $out/src/"}
+      '';
   tree-sitter-parser-lib =
     { name, src }:
     pkgs.runCommand name
       {
         nativeBuildInputs = [
           pkgs.nodejs
+          pkgs.tree-sitter
           pkgs.stdenv.cc
         ];
       }
       ''
         export HOME=$TMPDIR
-        ${pkgs.tree-sitter}/bin/tree-sitter build ${src} -o $out
+        tree-sitter build ${src} -o $out
       '';
 
   queries = ./../../topiary-queries/queries;
 in
 {
   languages = {
+    # Example of building from parser.c
+    # tree-sitter-bash contains the generated parser.c, so that we don't need to use `tree-sitter-parser-src`
+    # However, this is just an example
+    # This pattern might be helpful when writing a new tree-sitter grammar
     bash = {
       extensions = [
         "sh"
         "bash"
       ];
-      grammar.source.path = tree-sitter-parser-lib {
-        name = "tree-sitter-bash";
-        src = fetchgit {
-          url = "https://github.com/tree-sitter/tree-sitter-bash.git";
-          rev = "d1a1a3fe7189fdab5bd29a54d1df4a5873db5cb1";
-          hash = "sha256-XiiEI7/6b2pCZatO8Z8fBgooKD8Z+SFQJNdR/sGGkgE=";
+      grammar.source.path =
+        let
+          src = fetchgit {
+            url = "https://github.com/tree-sitter/tree-sitter-bash.git";
+            rev = "d1a1a3fe7189fdab5bd29a54d1df4a5873db5cb1";
+            hash = "sha256-XiiEI7/6b2pCZatO8Z8fBgooKD8Z+SFQJNdR/sGGkgE=";
+          };
+        in
+        tree-sitter-parser-lib {
+          name = "tree-sitter-bash";
+          src = tree-sitter-parser-src {
+            name = "tree-sitter-bash-src";
+            inherit src;
+            scanner = pkgs.runCommand "scanners" { } ''
+              mkdir -p $out
+              cp ${src}/src/scanner.c $out/
+            '';
+          };
         };
-      };
       query = "${queries}/bash/formatting.scm";
     };
 
