@@ -13,7 +13,7 @@
 use std::{io, sync::Arc};
 
 use pretty_assertions::StrComparison;
-use rootcause::{prelude::ResultExt, report};
+use rootcause::{option_ext::OptionExt, prelude::ResultExt, report};
 use tree_sitter::Position;
 
 pub use crate::{
@@ -394,12 +394,11 @@ fn rewrite_injected_leaves(
     for span in spans {
         let inner_source = input_content
             .get(span.start_byte..span.end_byte)
-            .ok_or_else(|| {
-                report!(FormatterError::Internal(format!(
-                    "Injected {} span is not on UTF-8 boundaries",
-                    span.language
-                )))
-            })?;
+            .ok_or_report()
+            .context(FormatterError::Internal(
+                "Injected span is not on UTF-8 boundaries".into(),
+            ))
+            .attach_language(span.language.clone())?;
 
         let inner_language = resolve_injected_language(resolve, &span.language)?;
 

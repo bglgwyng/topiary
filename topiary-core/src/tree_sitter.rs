@@ -599,7 +599,7 @@ fn check_for_error_nodes(node: &Node) -> FormatterResult<()> {
     if node.is_error() {
         return Err(report!(FormatterError::Parsing)
             .attach_range(node.range())
-            .attach_language(node.language_name()));
+            .attach_language(node.language_name().map(String::from)));
     }
 
     for child in node.children(&mut node.walk()) {

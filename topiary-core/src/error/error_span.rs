@@ -34,7 +34,7 @@ pub struct ErrorSpan {
     source: Option<String>,
     // original
     filepath: Option<PathBuf>,
-    language: Option<&'static str>,
+    language: Option<String>,
     pub(crate) range: Option<Range>,
 
     // label for our immediate `SourceSpan`
@@ -74,11 +74,11 @@ impl ErrorSpan {
         self
     }
 
-    pub fn set_language(&mut self, language: &'static str) {
-        self.language = Some(language);
+    pub fn set_language(&mut self, language: impl Into<String>) {
+        self.language = Some(language.into());
     }
 
-    pub fn with_language(mut self, language: &'static str) -> Self {
+    pub fn with_language(mut self, language: impl Into<String>) -> Self {
         self.set_language(language);
         self
     }
@@ -141,8 +141,8 @@ impl SourceCode for ErrorSpan {
             inner_contents.column(),
             inner_contents.line_count(),
         );
-        if let Some(language) = self.language {
-            contents = contents.with_language(language);
+        if let Some(language) = &self.language {
+            contents = contents.with_language(language.clone());
         }
         Ok(Box::new(contents))
     }
@@ -162,7 +162,7 @@ impl std::error::Error for ErrorSpan {}
 pub trait SpanAttachment {
     fn attach_filepath<'a>(self, filepath: impl Into<Option<&'a Path>>) -> Self;
     fn attach_source<'a>(self, source: impl Into<Option<&'a str>>) -> Self;
-    fn attach_language(self, language: impl Into<Option<&'static str>>) -> Self;
+    fn attach_language(self, language: impl Into<Option<String>>) -> Self;
     fn attach_range(self, range: Range) -> Self;
     fn get_span(&mut self) -> Option<&mut ErrorSpan>;
 }
@@ -193,7 +193,7 @@ where
         self.attach_custom::<MietteHandler, _>(ErrorSpan::default().with_source(source))
     }
 
-    fn attach_language(mut self, language: impl Into<Option<&'static str>>) -> Self {
+    fn attach_language(mut self, language: impl Into<Option<String>>) -> Self {
         let Some(language) = language.into() else {
             return self;
         };
@@ -239,7 +239,7 @@ where
         }
     }
 
-    fn attach_language(self, language: impl Into<Option<&'static str>>) -> Self {
+    fn attach_language(self, language: impl Into<Option<String>>) -> Self {
         match self {
             Ok(v) => Ok(v),
             Err(e) => Err(e.attach_language(language)),
