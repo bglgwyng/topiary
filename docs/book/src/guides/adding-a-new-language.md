@@ -212,7 +212,7 @@ inner language:
 )
 ```
 
-The host language's `formatting.scm` still controls layout around the
+The host language's `formatting.scm` retains control of the layout around the
 captured node. The captured content is formatted independently by the
 inner language and then rendered as a host leaf. See
 [Language injections](../reference/language-injections.md) for the
