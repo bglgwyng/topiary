@@ -14,9 +14,10 @@ fn setup() -> (String, Language) {
 
     let language: Language = Language {
         name: "nickel".to_owned(),
-        query: TopiaryQuery::new(&nickel.into(), &query_content).unwrap(),
+        formatting_query: TopiaryQuery::new(&nickel.into(), &query_content).unwrap(),
         grammar: tree_sitter_nickel::LANGUAGE.into(),
         indent: None,
+        injection_query: None,
     };
 
     (input, language)
@@ -37,6 +38,7 @@ fn criterion_benchmark(c: &mut Criterion) {
                     skip_idempotence: true,
                     tolerate_parsing_errors: false,
                 },
+                None,
             )
             .unwrap();
         });
