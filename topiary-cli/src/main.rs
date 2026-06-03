@@ -275,7 +275,7 @@ async fn run() -> CLIResult<()> {
                 &language.formatting_query,
                 &language.grammar,
             )
-            .attach_source(input_content.as_str())
+            .attach_source(Some(input_content.as_str()))
             .attach_filepath(buf_input.get_ref().filepath())?;
             let coverage_res = coverage_data.get_result();
 

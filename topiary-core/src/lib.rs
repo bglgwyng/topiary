@@ -398,7 +398,7 @@ fn rewrite_injected_leaves(
             .context(FormatterError::Internal(
                 "Injected span is not on UTF-8 boundaries".into(),
             ))
-            .attach_language(span.language.clone())?;
+            .attach_language(Some(span.language.as_str()))?;
 
         let inner_language = resolve_injected_language(resolve, &span.language)?;
 

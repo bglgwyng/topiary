@@ -70,7 +70,7 @@ impl TopiaryQuery {
                 let range = e.current_context().range;
                 e.attach_range(range)
             })
-            .attach_source(query_content)?;
+            .attach_source(Some(query_content))?;
 
         Ok(TopiaryQuery {
             query,
@@ -140,7 +140,7 @@ impl InjectionQuery {
                 let range = e.current_context().range;
                 e.attach_range(range)
             })
-            .attach_source(query_content)
+            .attach_source(Some(query_content))
             .context(FormatterError::Query(
                 "Error parsing injection query file".into(),
             ))?;
@@ -582,7 +582,7 @@ pub fn parse(
 
     // Fail parsing if we don't get a complete syntax tree.
     if !tolerate_parsing_errors {
-        check_for_error_nodes(&tree.root_node()).attach_source(content)?;
+        check_for_error_nodes(&tree.root_node()).attach_source(Some(content))?;
     }
 
     Ok(tree)
@@ -593,7 +593,7 @@ fn check_for_error_nodes(node: &Node) -> FormatterResult<()> {
     if node.is_error() {
         return Err(report!(FormatterError::Parsing)
             .attach_range(node.range())
-            .attach_language(node.language_name().map(String::from)));
+            .attach_language(node.language_name()));
     }
 
     for child in node.children(&mut node.walk()) {
