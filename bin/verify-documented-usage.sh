@@ -4,12 +4,14 @@
 
 set -euo pipefail
 
+export __TOPIARY_TERM_WIDTH=90
+
 readonly FENCE='```'
 
 get-cli-usage() {
   # Get the help text from the CLI
   local subcommand="$1"
-  local topiary="${TOPIARY_WRAPPED:-nix run .#topiary-wrapped --}"
+  local topiary="${TOPIARY:-cargo run -q --bin topiary --}"
 
   case "${subcommand}" in
     "index") ${topiary} --help;;

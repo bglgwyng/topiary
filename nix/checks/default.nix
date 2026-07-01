@@ -30,7 +30,7 @@ in
     runCommand "verify-documented-usage"
       {
         nativeBuildInputs = [ binPkgs.verify-documented-usage ];
-        TOPIARY_WRAPPED = lib.getExe topiaryPkgs.topiary-wrapped;
+        TOPIARY = lib.getExe topiaryPkgs.topiary-cli;
       }
       ''
         mkdir -p docs/book/src/cli
