@@ -139,15 +139,21 @@ impl Source {
     #[allow(clippy::result_large_err)]
     pub fn read(&self) -> TopiaryConfigResult<Vec<u8>> {
         match self {
-            Self::Builtin => Ok(self.builtin_nickel().into_bytes()),
+            Self::Builtin => Ok(self.builtin_nickel().into()),
 
             Self::Directory(dir) => read_to_string(&dir.join("languages.ncl")),
             Self::File(path) => read_to_string(path),
         }
     }
 
-    fn builtin_nickel(&self) -> String {
-        include_str!("../languages.ncl").to_string()
+    /// Returns the inlined value of [`topiary-config/languages.ncl`](
+    /// https://github.com/topiary/topiary/blob/a18816a891fd3f5265732a94c9049820f70638b0/topiary-config/languages.ncl),
+    /// this should be merged with other configurations using Nickel's commutative  [operations][ncl-merging] [^@wiki].
+    ///
+    /// [ncl-merging]: https://nickel-lang.org/user-manual/merging
+    /// [^@wiki]: <https://en.wikipedia.org/wiki/Commutative_property>
+    pub const fn builtin_nickel(&self) -> &'static str {
+        include_str!("../languages.ncl")
     }
 }
 

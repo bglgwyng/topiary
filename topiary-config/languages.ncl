@@ -65,7 +65,7 @@ variant with the other via Nickel record merging (e.g. setting
       | doc "File extensions (without leading dot) associated with this language.",
     indent
       | String
-      | optional # NOTE,TODO: remove optional tag to implement error formatting for `nickel_lang_core::error::Error`
+      | optional
       | doc "Indentation string for this language; defaults to two spaces.",
     grammar | Grammar,
     .. # lang config fields should be non exhaustive for future schemas and end user customizability
